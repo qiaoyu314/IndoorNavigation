@@ -69,7 +69,7 @@ public class SensorNavigation extends Activity {
 	ArrayList<Float> a = new ArrayList<Float>();
 	LinkedList<Float> delayList = new LinkedList<Float>();
 	int delayNum = 8;
-	float threshold = 3.0f;
+	float threshold = 1.5f;
 	int i = 0;
 	
 	final Handler handler=new Handler();

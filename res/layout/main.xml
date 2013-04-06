@@ -4,30 +4,43 @@
     android:orientation="vertical" >
         
     <TextView
-    android:layout_width="fill_parent"
-    android:layout_height="wrap_content"
-    android:text="Current Position" />
-    <TextView
-    android:id="@+id/tv1"
-    android:layout_width="fill_parent"
-    android:layout_height="wrap_content"
-    android:layout_gravity="center" />
-    
-    <TextView
-    android:layout_width="fill_parent"
-    android:layout_height="wrap_content"
-    android:text="GPS Status" />
-    <TextView
-    android:id="@+id/tv2"
-    android:layout_width="fill_parent"
-    android:layout_height="wrap_content" />
-
-    <Button
-        android:id="@+id/bt1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
+        android:layout_margin="10dp"
+        android:text="Latitude"
+        android:textSize="@dimen/large_size" />
+    
+    <TextView
+    android:id="@+id/textViewLatitude"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:textSize="@dimen/medium_size"/>
+    
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_margin="10dp"
+        android:text="Longitude"
+        android:textSize="@dimen/large_size" />
+    
+    <TextView
+    android:id="@+id/textViewLongitude"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:textSize="@dimen/medium_size" />
+
+    <ImageButton
+        android:id="@+id/buttonNext"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_gravity="center"
         android:layout_marginTop="100dp"
-        android:text="@string/buttonText" />
+        android:background="@null"
+        android:scaleType="centerInside"
+        android:src="@drawable/button_arrow_green_right" />
 
 </LinearLayout>

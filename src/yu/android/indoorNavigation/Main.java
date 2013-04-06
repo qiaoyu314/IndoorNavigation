@@ -16,41 +16,42 @@ import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
 public class Main extends Activity {
-	
-	TextView tv1, tv2;
-	Button bt1;
+
+	TextView textViewLatitude, textViewLongitude;
+	ImageButton buttonNext;
 	LocationManager locationManager;
 	Criteria criteria;
 	LocationListener locationListener;
 	Dialog gpsSetting;
-	
+
 	public static double latitude;
 	public static double longitude;
-	
+
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         
-        tv1 = (TextView)findViewById(R.id.tv1);
-        tv2 = (TextView)findViewById(R.id.tv2);
-        bt1 = (Button)findViewById(R.id.bt1);
+        textViewLatitude = (TextView)findViewById(R.id.textViewLatitude);
+        textViewLongitude = (TextView)findViewById(R.id.textViewLongitude);
+        buttonNext = (ImageButton)findViewById(R.id.buttonNext);
           
         
         
         //set click listener for the button
-        bt1.setOnClickListener(new View.OnClickListener() {
-			
+        buttonNext.setOnClickListener(new View.OnClickListener() {
+
 			@Override
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
 				beginSensorNav();
-				
+
 			}
 		});
         
@@ -67,7 +68,7 @@ public class Main extends Activity {
 				startActivityForResult(intent, 0);
 			}} )
 		.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-			
+
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				// exit
@@ -129,8 +130,8 @@ public class Main extends Activity {
 			gpsSetting.show();
 		}
         
-        tv1.setText("Searching GPS...");
-        tv2.setText("GPS status:");
+        textViewLatitude.setText("...");
+        textViewLongitude.setText("...");
         locationListener = new LocationListener(){
 
 			@Override
@@ -142,13 +143,13 @@ public class Main extends Activity {
 			@Override
 			public void onProviderDisabled(String provider) {
 				// TODO Auto-generated method stub
-				
+
 			}
 
 			@Override
 			public void onProviderEnabled(String provider) {
 				// TODO Auto-generated method stub
-				tv1.setText("Provider is enabled");
+				textViewLatitude.setText("Provider is enabled");
 			}
 
 			@Override
@@ -157,13 +158,13 @@ public class Main extends Activity {
 				// TODO Auto-generated method stub
 				switch (status){
 				case LocationProvider.OUT_OF_SERVICE:
-					tv2.setText("GPS is out of service");
+					textViewLongitude.setText("GPS is out of service");
 					break;
 				case LocationProvider.TEMPORARILY_UNAVAILABLE:
-					tv2.setText("GPS is temporarily unavailable");
+					textViewLongitude.setText("GPS is temporarily unavailable");
 					break;
 				}
-				
+
 			}
         	
         };
@@ -181,9 +182,10 @@ public class Main extends Activity {
         if (location != null) {
             latitude = location.getLatitude();
             longitude= location.getLongitude();
-            tv1.setText("Latitude：" +  latitude+ "\nLongitude" + longitude);
+            textViewLatitude.setText(Double.toString(latitude));
+            textViewLongitude.setText(Double.toString(longitude));
         } else {
-            tv1.setText("Unable to get GEO info!");
+            textViewLatitude.setText("Unable to get GEO info!");
         }
 
     }

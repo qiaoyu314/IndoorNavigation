@@ -4,5 +4,6 @@
     <string name="hello">Hello World, Main!</string>
     <string name="app_name">IndoorNavigation</string>
     <string name="buttonText">Begin to navigate using sensors</string>
+    <string name="large_size">40dp</string>
 
 </resources>
