@@ -63,13 +63,13 @@ public class SensorNavigation extends Activity {
 	int currentOrientation = 0;
 	float[] rotate = new float[9];
 	float lowpass = 0.0f;
-	final float cutoff = 3.0f;
-	float alpha = 0.1f;
+	final float cutoff = 3.5f;
+	float alpha = 0.2f;
 	
 	ArrayList<Float> a = new ArrayList<Float>();
 	LinkedList<Float> delayList = new LinkedList<Float>();
-	int delayNum = 8;
-	float threshold = 1.5f;
+	int delayNum = 10;
+	float threshold = 6f;
 	int i = 0;
 	
 	final Handler handler=new Handler();
@@ -184,9 +184,9 @@ public class SensorNavigation extends Activity {
 		    	//use low pass filter to fliter the acceleration
 		    	//float alpha = 0.02f/(0.02f*(1/cutoff));
 		    	if(lowpass == 0.0){
-		    		lowpass = accelerometerValues[1];
+		    		lowpass = linearValues[1];
 		    	}else{
-		    		lowpass = lowpass + alpha*(accelerometerValues[1] - lowpass);
+		    		lowpass = lowpass + alpha*(linearValues[1] - lowpass);
 		    	}
 		    	a.add(lowpass);
 		    	delayList.add(lowpass);

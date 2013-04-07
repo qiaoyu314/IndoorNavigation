@@ -16,6 +16,8 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_gravity="center"
+    android:layout_marginBottom="20dp"
+    android:textColor="@color/purple"
     android:textSize="@dimen/medium_size"/>
     
     <TextView
@@ -31,8 +33,9 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_gravity="center"
+    android:textColor="@color/purple"
     android:textSize="@dimen/medium_size" />
-
+    
     <ImageButton
         android:id="@+id/buttonNext"
         android:layout_width="80dp"
@@ -42,5 +45,11 @@
         android:background="@null"
         android:scaleType="centerInside"
         android:src="@drawable/button_arrow_green_right" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="Start Sensor Localization" />
 
 </LinearLayout>
