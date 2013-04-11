@@ -4,24 +4,6 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
-    <TextView
-        android:id="@+id/x"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center" />
-
-    <TextView
-        android:id="@+id/y"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center" />
-
-    <TextView
-        android:id="@+id/z"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center" />
-
     <ImageView
         android:id="@+id/arrow"
         android:layout_width="wrap_content"
@@ -30,28 +12,66 @@
         android:contentDescription="Arrow"
         android:src="@drawable/arrow" />
 
-    <TextView
-        android:layout_width="fill_parent"
+    <TableLayout
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="10dip"
-        android:maxLines="14"
-        android:scrollbars="vertical"
-        android:text="Tacking Info:"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:layout_margin="10dp" >
 
-    <ScrollView 
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        >    
-     <TextView
+        <TableRow
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
+                android:text="Latitude"
+                android:textSize="@dimen/medium_size" />
+
+            <TextView
+                android:id="@+id/textViewIndoorLatitude"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="..."
+                android:textSize="@dimen/small_size"
+                android:textColor="@color/purple" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
+                android:text="Longitude"
+                android:textSize="@dimen/medium_size" />
+
+            <TextView
+                android:id="@+id/textViewIndoorLongitude"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+				android:textSize="@dimen/small_size"
+                android:textColor="@color/purple" 
+                android:text="..."/>
+        </TableRow>
+    </TableLayout>
+
+    <TextView
         android:id="@+id/trackingInfo"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"        
-        android:layout_gravity="center"
-        android:background="#ffffff"
+        android:layout_height="match_parent"
+        android:background="#a9ccc7"
+        android:hint="Tracking info will be shown here"
+        android:maxLines="14"
+        android:scrollbars="vertical"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textColor="#000000" />
-    </ScrollView>  
-   
 
 </LinearLayout>

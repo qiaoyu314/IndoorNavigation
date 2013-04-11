@@ -27,6 +27,7 @@ import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
@@ -44,17 +45,19 @@ public class SensorNavigation extends Activity {
 	final int SAMPLE_RATE = 1;	//unit: ms
 	Context context = this;
 	
-	TextView x, y, z, trackingInfo;
+	TextView textViewIndoorLatitude, textViewIndoorLongitude, trackingInfo;
 	ImageView arrow;
 	EditText alpha_input, threshold_input; 
 	Dialog settingDialog;
 	
 	SensorManager sensorManager;
 	SensorEventListener listener;
+	SensorEventListener orientationListener;
 	Sensor aSensor;
 	Sensor mSensor;
 	Sensor lSensor;
-
+	
+	//for reading sensor values
 	float[] accelerometerValues = new float[3];
 	float[] magneticFieldValues = new float[3];
 	float[] linearValues = new float[3];
@@ -62,15 +65,25 @@ public class SensorNavigation extends Activity {
 	int lastOrientation = 0;
 	int currentOrientation = 0;
 	float[] rotate = new float[9];
-	float lowpass = 0.0f;
-	final float cutoff = 3.5f;
-	float alpha = 0.2f;
 	
+	//for low-pass filter
+	boolean firstTime = true;
+	float lowpass = 0.0f;
+	float alpha = 0.1f;
 	ArrayList<Float> a = new ArrayList<Float>();
 	LinkedList<Float> delayList = new LinkedList<Float>();
 	int delayNum = 10;
-	float threshold = 6f;
+	float threshold = 1.0f;
 	int i = 0;
+	
+	//for calculating lat and lon
+	float latLon[] = new float[2];
+	float distance = 0.0f;
+	boolean isOrientationChanged = false;
+	float stepLength = 1.0f;
+	
+	
+	
 	
 	final Handler handler=new Handler();
 	Runnable timer;
@@ -85,20 +98,22 @@ public class SensorNavigation extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.sensornavigation);
 		
-		ActionBar actionBar = this.getActionBar();
-		actionBar.setDisplayOptions(ActionBar.NAVIGATION_MODE_STANDARD | ActionBar.DISPLAY_SHOW_TITLE);
 		
-		x = (TextView) findViewById(R.id.x);
-		y = (TextView) findViewById(R.id.y);
-		z = (TextView) findViewById(R.id.z);
+		textViewIndoorLatitude = (TextView) findViewById(R.id.textViewIndoorLatitude);
+		textViewIndoorLongitude = (TextView) findViewById(R.id.textViewIndoorLongitude);
+
 		
 		trackingInfo = (TextView) findViewById(R.id.trackingInfo);
+		trackingInfo.setMovementMethod(new ScrollingMovementMethod());
 		arrow = (ImageView) findViewById(R.id.arrow);
 		
 		LayoutInflater li = LayoutInflater.from(this);
 		View dialogView = li.inflate(R.layout.setting_dialog, null);
 		
-
+		//get lat and lon from last activity
+		latLon[0] = (float) Main.latitude;
+		latLon[1] = (float) Main.longitude;
+		
 		AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context); 
 		dialogBuilder.setView(dialogView);
 		alpha_input = (EditText) dialogView.findViewById(R.id.alpha_input);
@@ -129,12 +144,13 @@ public class SensorNavigation extends Activity {
 		settingDialog = dialogBuilder.create();
 		
 		
-		
+		//get sensor manager and sensors
 		sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 		aSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 		mSensor = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
 		lSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
 
+		//listener for linear accelerometer
 		listener = new SensorEventListener() {
 
 			@Override
@@ -146,14 +162,15 @@ public class SensorNavigation extends Activity {
 			@Override
 			public void onSensorChanged(SensorEvent event) {
 				// TODO Auto-generated method stub
+				
+				if(event.sensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION){
+					linearValues = event.values;
+				}
 				if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
 					accelerometerValues = event.values;
 				}
 				if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
 					magneticFieldValues = event.values;
-				}
-				if(event.sensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION){
-					linearValues = event.values;
 				}
 				SensorManager.getRotationMatrix(rotate, null,
 						accelerometerValues, magneticFieldValues);
@@ -161,6 +178,21 @@ public class SensorNavigation extends Activity {
 
 			}
 		};
+		
+		//listener for accelerometer and magnetic field sensor
+		orientationListener = new SensorEventListener(){
+
+			@Override
+			public void onAccuracyChanged(Sensor sensor, int accuracy) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void onSensorChanged(SensorEvent event) {
+				// TODO Auto-generated method stub
+				
+			}};
         
 		//create a new timer to read the sensor value periodically
 		timer=new Runnable() {
@@ -170,6 +202,7 @@ public class SensorNavigation extends Activity {
 		    	//Orientation
 		    	int temOrientation = (int) Math.rint(Math.toDegrees(orientationValues[0]));
 		    	if((Math.abs(temOrientation - currentOrientation)) > 5){
+		    		isOrientationChanged = true;
 		    		lastOrientation = currentOrientation;
 		    		currentOrientation = temOrientation;
 		    		//rotate the arrow
@@ -178,13 +211,17 @@ public class SensorNavigation extends Activity {
 							arrow.getWidth()/2, 
 							arrow.getHeight()/2);
 					arrow.setImageMatrix(matrix);
+		    	}else{
+		    		isOrientationChanged = false;
 		    	}
 		    	
 		    	
 		    	//use low pass filter to fliter the acceleration
 		    	//float alpha = 0.02f/(0.02f*(1/cutoff));
-		    	if(lowpass == 0.0){
+		    	if (linearValues[1]>0.0f) linearValues[1] = 0.0f;
+		    	if(firstTime){
 		    		lowpass = linearValues[1];
+		    		firstTime = false;
 		    	}else{
 		    		lowpass = lowpass + alpha*(linearValues[1] - lowpass);
 		    	}
@@ -196,14 +233,21 @@ public class SensorNavigation extends Activity {
 		    		float pre = delayList.poll();
 		    		if(( pre - lowpass) > threshold){
 		    			printNewLine("move toward "+ currentOrientation
-		    					+ "with 1 meter");
+		    					+ " with 1 meter");
 		    			i = 0;
 		    			delayList.clear();
+		    			if(!isOrientationChanged){
+		    				distance += stepLength;
+		    			}else{
+		    				float[] temLatLon = getLocation(latLon, lastOrientation, distance);
+		    				latLon = temLatLon;
+		    				distance = stepLength;
+		    			}
 		    		}
 		    	}
 				
-				x.setText("与北极夹角："+ currentOrientation);
-				y.setText("加速度： "+Float.toString(lowpass));
+		    	textViewIndoorLatitude.setText(Float.toString(latLon[0]));
+		    	textViewIndoorLongitude.setText(Float.toString(latLon[1]));
 				//redo this task 
 				handler.postDelayed(this, SAMPLE_RATE);
 				
@@ -221,11 +265,11 @@ public class SensorNavigation extends Activity {
 		// TODO Auto-generated method stub
 		super.onResume();
 		sensorManager.registerListener(listener, aSensor,
-				SensorManager.SENSOR_DELAY_NORMAL);
+				SensorManager.SENSOR_DELAY_FASTEST);
 		sensorManager.registerListener(listener, mSensor,
-				SensorManager.SENSOR_DELAY_NORMAL);
+				SensorManager.SENSOR_DELAY_FASTEST);
 		sensorManager.registerListener(listener, lSensor,
-				SensorManager.SENSOR_DELAY_NORMAL);
+				SensorManager.SENSOR_DELAY_FASTEST);
 		handler.postDelayed(timer, SAMPLE_RATE);
 	}
 
@@ -234,6 +278,7 @@ public class SensorNavigation extends Activity {
 		// TODO Auto-generated method stub
 		super.onPause();
 		sensorManager.unregisterListener(listener);
+		sensorManager.unregisterListener(orientationListener);		
 		handler.removeCallbacks(timer); 
 		if(isExternalStorageWritable()){
 			File file = new File(Environment.getExternalStoragePublicDirectory(
